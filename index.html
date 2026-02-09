@@ -6,22 +6,53 @@
   <title>SofitPilates</title>
   <meta name="robots" content="noindex,nofollow" />
   <style>
-    html, body { height: 100%; margin: 0; }
-    body { background: #000; overflow: hidden; }
-    video {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover; /* ekranı kaplasın */
-      object-position: center;
-      background: #000;
+    html, body { height:100%; margin:0; }
+    body { background:#000; overflow:hidden; }
+    #poster, video {
+      position: fixed; inset: 0;
+      width:100%; height:100%;
+      object-fit: cover; object-position:center;
+      background:#000;
+    }
+    #hud{
+      position:fixed; left:10px; bottom:10px;
+      padding:8px 10px; border-radius:10px;
+      background:rgba(0,0,0,.55); color:#fff;
+      font:12px system-ui; z-index:9999;
+      max-width: 92vw;
+      white-space: pre-wrap;
     }
   </style>
 </head>
 <body>
-  <video autoplay muted loop playsinline preload="auto">
+  <img id="poster" src="./Screenshot_1.png" alt="" />
+
+  <video id="v" autoplay muted loop playsinline preload="auto" poster="./Screenshot_1.png">
     <source src="./yapiyoruz.mp4" type="video/mp4" />
   </video>
+
+  <div id="hud">Yükleniyor...</div>
+
+  <script>
+    const v = document.getElementById('v');
+    const hud = document.getElementById('hud');
+
+    const log = (t) => hud.textContent = t;
+
+    v.addEventListener('loadedmetadata', () => log('metadata geldi'));
+    v.addEventListener('canplay', () => log('canplay'));
+    v.addEventListener('playing', () => log('oynuyor ✅'));
+
+    v.addEventListener('error', () => {
+      const code = v.error ? v.error.code : 'unknown';
+      // 1=ABORTED 2=NETWORK 3=DECODE 4=SRC_NOT_SUPPORTED
+      log('VIDEO ERROR code=' + code + '\n' +
+          '1=ABORTED 2=NETWORK 3=DECODE(codec) 4=SRC_NOT_SUPPORTED\n' +
+          'Test: ' + location.origin + location.pathname.replace(/\\/[^\\/]*$/, '/') + 'yapiyoruz.mp4');
+    });
+
+    // Autoplay engeli vs. için (muted olmasına rağmen bazı durumlarda)
+    v.play().catch(e => log('play() bloklandı: ' + e));
+  </script>
 </body>
 </html>
